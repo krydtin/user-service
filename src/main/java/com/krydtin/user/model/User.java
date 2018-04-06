@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "[user]")
 public class User implements Serializable {
 
-
     @Id
     @Column(unique = true)
     private String username;
@@ -46,4 +45,5 @@ public class User implements Serializable {
 
     @Column(name = "member_type")
     private MemberType memberType;
+
 }

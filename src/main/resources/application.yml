@@ -8,5 +8,9 @@ spring:
         console:
             enabled: true
             path: /console
-                     
             
+security:
+    jwt:
+        token:
+            secret-key: $S%#E^DR&TF*YB(NU(
+            expire-length: 3600000               
