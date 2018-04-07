@@ -1,9 +1,14 @@
 package com.krydtin.user.services.impl;
 
 import com.krydtin.user.configurations.jwt.JwtTokenProvider;
+import com.krydtin.user.constant.ErrorCode;
+import com.krydtin.user.constant.MemberType;
+import com.krydtin.user.exceptions.DataNotFoundException;
 import com.krydtin.user.model.User;
 import com.krydtin.user.repositories.UserRepository;
 import com.krydtin.user.services.UserService;
+import com.krydtin.user.exceptions.RegistrationException;
+import static com.krydtin.users.utils.DateUtils.currentDate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,25 +27,24 @@ public class UserServiceImpl implements UserService {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public User createUser(User user) {
-        final User existingUser = userRepository.findByUsername(user.getUsername());
-        if (existingUser != null) {
-            //TODO throw Duplicated
-            log.error("Duplicated");
+    public User findByUsername(String username) throws DataNotFoundException {
+        final User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new DataNotFoundException(ErrorCode.DataNotFound.DATA_NOT_FOUND, "User '" + username + "' not found");
         }
-        //TODO check salary and set member type, reference code YYYYMMDD + phone last 4 digit 
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        return user;
     }
 
     @Override
-    public User findByUsername(String username) {
-        final User user = userRepository.findByUsername(username);
-        if (user == null) {
-            //TODO throw DataNotFound
-            log.error("Not found");
+    public User createUser(User user) throws RegistrationException {
+        final User existingUser = userRepository.findByUsername(user.getUsername());
+        if (existingUser != null) {
+            throw new RegistrationException(ErrorCode.Registration.DUPLICATE_USERNAME, "Username '" + user.getUsername() + "' is already exist");
         }
-        return user;
+        setMemberType(user);
+        setReferenCode(user);
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
     }
 
     @Override
@@ -49,9 +53,26 @@ public class UserServiceImpl implements UserService {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
             return jwtTokenProvider.createToken(user.getUsername());
         } catch (AuthenticationException e) {
-            //TODO catch and throw custom exception
-            throw new RuntimeException(e.getMessage(), e);
+            throw new com.krydtin.user.exceptions.AuthenticationException(ErrorCode.Authentication.INVALID_USERNAME_PASSWORD, "Invalid username or password");
         }
+    }
+
+    private void setMemberType(User user) throws RegistrationException {
+        final double salary = user.getSalary();
+        if (salary > 50_000) {
+            user.setMemberType(MemberType.Platinum);
+        } else if (salary >= 30_000) {
+            user.setMemberType(MemberType.Gold);
+        } else if (salary >= 15_000) {
+            user.setMemberType(MemberType.Silver);
+        } else {
+            throw new RegistrationException(ErrorCode.Registration.MINIMUM_INCOME, "Salary don't meet minimum requirements");
+        }
+    }
+
+    private void setReferenCode(User user) {
+        final String phone = user.getPhone();
+        user.setReferenceCode(currentDate() + phone.substring(phone.length() - 4, phone.length()));
     }
 
     @Autowired

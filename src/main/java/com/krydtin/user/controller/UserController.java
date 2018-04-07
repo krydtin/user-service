@@ -1,5 +1,7 @@
 package com.krydtin.user.controller;
 
+import com.krydtin.user.exceptions.DataNotFoundException;
+import com.krydtin.user.exceptions.RegistrationException;
 import com.krydtin.user.model.User;
 import com.krydtin.user.services.UserService;
 import javax.validation.Valid;
@@ -31,12 +33,14 @@ public class UserController {
 
     @PostMapping(value = "/signup")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public User createUser(@Valid @RequestBody User user) { 
+    public User createUser(@Valid @RequestBody User user)
+            throws RegistrationException {
         return userService.createUser(user);
     }
 
     @GetMapping(value = "/users/{username}")
-    public User getUser(@PathVariable(required = true, name = "username") String username) {
+    public User getUser(@PathVariable(required = true, name = "username") String username)
+            throws DataNotFoundException {
         return userService.findByUsername(username);
     }
 
