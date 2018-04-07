@@ -1,5 +1,7 @@
 package com.krydtin.user.configurations;
 
+import com.krydtin.user.constant.ErrorCode;
+import com.krydtin.user.exceptions.AuthenticationException;
 import com.krydtin.user.model.User;
 import com.krydtin.user.repositories.UserRepository;
 import java.util.List;
@@ -8,7 +10,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,10 +24,10 @@ public class SecUserDetailsService
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         final User user = userRepository.findByUsername(username);
         if (user == null) {
-            throw new UsernameNotFoundException("user '" + username + "' is not found");
+            throw new AuthenticationException(ErrorCode.Authentication.INVALID_TOKEN, "user '" + username + "' is not found");
         }
         final List<GrantedAuthority> auth = AuthorityUtils
                 .commaSeparatedStringToAuthorityList("ROLE_USER");

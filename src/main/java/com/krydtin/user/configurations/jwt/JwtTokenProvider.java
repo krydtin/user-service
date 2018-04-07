@@ -1,6 +1,8 @@
 package com.krydtin.user.configurations.jwt;
 
 import com.krydtin.user.configurations.SecUserDetailsService;
+import com.krydtin.user.constant.ErrorCode;
+import com.krydtin.user.exceptions.AuthenticationException;
 import java.util.Base64;
 import java.util.Date;
 import javax.annotation.PostConstruct;
@@ -67,8 +69,7 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            //TODO throw Custom Exception
-            throw new RuntimeException("Invalid token or expired");
+            throw new AuthenticationException(ErrorCode.Authentication.INVALID_TOKEN, "Expired or invalid JWT token");
         }
     }
 

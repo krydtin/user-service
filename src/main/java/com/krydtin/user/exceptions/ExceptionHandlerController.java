@@ -33,7 +33,7 @@ public class ExceptionHandlerController {
 
     @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler({AuthenticationException.class})
+    @ExceptionHandler(AuthenticationException.class)
     public ErrorMessage handleBadRequest(HttpServletRequest request, AuthenticationException e) {
         return ErrorMessage.builder()
                 .code(e.getErrorCode().getCode())
@@ -71,6 +71,7 @@ public class ExceptionHandlerController {
         ErrorMessage<String> result = new ErrorMessage<>();
         result.setCode("" + BAD_REQUEST.value());
         result.setMessage(e.getMessage());
+        log.error(e.getMessage(), e);
         return result;
     }
 

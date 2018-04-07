@@ -8,7 +8,7 @@ import com.krydtin.user.model.User;
 import com.krydtin.user.repositories.UserRepository;
 import com.krydtin.user.services.UserService;
 import com.krydtin.user.exceptions.RegistrationException;
-import static com.krydtin.users.utils.DateUtils.currentDate;
+import static com.krydtin.user.utils.DateUtils.currentDate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;

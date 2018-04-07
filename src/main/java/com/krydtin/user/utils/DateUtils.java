@@ -1,4 +1,4 @@
-package com.krydtin.users.utils;
+package com.krydtin.user.utils;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
